@@ -1,5 +1,5 @@
 /*
-  Lesson 01 - Metadata,Read, add, and remove rows
+  Lesson 02 - Expressions, NULL, conversion, and formatting
   Student:João Victor Franco da Costa   
   Date:15/09/2026 noite 7:30 - 9:30
 */
