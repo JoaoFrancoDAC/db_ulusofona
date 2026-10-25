@@ -5,8 +5,6 @@
 */
 
 USE ULHT_DB26;
-select *
-from hr.learning_project
 
 DROP TABLE IF EXISTS HR.learning_project;
 
