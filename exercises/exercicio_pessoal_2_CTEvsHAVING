@@ -1,0 +1,76 @@
+USE BikeStores
+
+-- teste
+SELECT category_id, COUNT(product_id) AS total_produtos
+FROM production.products
+GROUP BY category_id
+HAVING COUNT(product_id)>40;
+
+WITH ContagemProdutos AS (
+    SELECT category_id, COUNT(product_id) AS total_produtos
+    FROM production.products
+    GROUP BY category_id
+)
+SELECT category_id, total_produtos
+FROM ContagemProdutos
+WHERE total_produtos > 40;
+
+
+SELECT 
+    brand_id,
+    model_year,
+    COUNT(product_id) AS total_modelos,
+    MAX(list_price) - MIN(list_price) AS variacao_de_preco,
+    AVG(list_price) AS preco_medio
+FROM production.products
+WHERE model_year >= 2016
+GROUP BY brand_id, model_year
+HAVING COUNT(product_id) >= 3 
+   AND (MAX(list_price) - MIN(list_price)) > 400
+   AND AVG(list_price) > 500;
+
+WITH teste as(
+    SELECT
+    brand_id,
+    model_year,
+    count(product_id) as total_modelos,
+    MAX(list_price) - MIN(list_price) as variacao_de_preco,
+    AVG(list_price) as preco_medio
+    FROM production.products
+    WHERE model_year >=2016
+    GROUP BY brand_id, model_year
+)
+
+SELECT 
+    brand_id,
+    model_year,
+    total_modelos,
+    variacao_de_preco,
+    preco_medio
+    FROM teste
+    where total_modelos >=3 and variacao_de_preco >400 and preco_medio >500;
+
+--
+WITH Produtos2016 AS (
+    SELECT 
+        category_id,
+        -- O ROW_NUMBER cria um contador. O PARTITION BY zera o contador a cada categoria nova.
+        ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY category_id) AS numero_da_repeticao
+    FROM production.products
+    WHERE model_year = 2016
+),
+
+Produtos2018 AS (
+    SELECT 
+        category_id,
+        ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY category_id) AS numero_da_repeticao
+    FROM production.products
+    WHERE model_year = 2018
+)
+
+-- 3. Cruzamos (INNER JOIN) as duas listas exigindo que a categoria E o número da repetição sejam iguais
+SELECT A.category_id
+FROM Produtos2016 A
+INNER JOIN Produtos2018 B
+    ON A.category_id = B.category_id
+    AND A.numero_da_repeticao = B.numero_da_repeticao;
